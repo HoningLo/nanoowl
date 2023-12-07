@@ -11,205 +11,124 @@ NanoOWL is a project that optimizes [OWL-ViT](https://huggingface.co/docs/transf
 > [NanoSAM](https://github.com/NVIDIA-AI-IOT/nanosam) for zero-shot open-vocabulary 
 > instance segmentation.
 
-<a id="usage"></a>
-## 👍 Usage
-
-You can use NanoOWL in Python like this
-
-```python3
-from nanoowl.owl_predictor import OwlPredictor
-
-predictor = OwlPredictor(
-    "google/owlvit-base-patch32",
-    image_encoder_engine="data/owlvit-base-patch32-image-encoder.engine"
-)
-
-image = PIL.Image.open("assets/owl_glove_small.jpg")
-
-output = predictor.predict(image=image, text=["an owl", "a glove"], threshold=0.1)
-
-print(output)
-```
-
-Or better yet, to use OWL-ViT in conjunction with CLIP to detect and classify anything,
-at any level, check out the tree predictor example below!
-
-> See [Setup](#setup) for instructions on how to build the image encoder engine.
-
-<a id="performance"></a>
-## ⏱️ Performance
-
-NanoOWL runs real-time on Jetson Orin Nano.
-
-<table style="border-top: solid 1px; border-left: solid 1px; border-right: solid 1px; border-bottom: solid 1px">
-    <thead>
-        <tr>
-            <th rowspan=1 style="text-align: center; border-right: solid 1px">Model †</th>
-            <th colspan=1 style="text-align: center; border-right: solid 1px">Image Size</th>
-            <th colspan=1 style="text-align: center; border-right: solid 1px">Patch Size</th>
-            <th colspan=1 style="text-align: center; border-right: solid 1px">⏱️ Jetson Orin Nano (FPS)</th>
-            <th colspan=1 style="text-align: center; border-right: solid 1px">⏱️ Jetson AGX Orin (FPS)</th>
-            <th colspan=1 style="text-align: center; border-right: solid 1px">🎯 Accuracy (mAP)</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td style="text-align: center; border-right: solid 1px">OWL-ViT (ViT-B/32)</td>
-            <td style="text-align: center; border-right: solid 1px">768</td>
-            <td style="text-align: center; border-right: solid 1px">32</td>
-            <td style="text-align: center; border-right: solid 1px">TBD</td>
-            <td style="text-align: center; border-right: solid 1px">95</td>
-            <td style="text-align: center; border-right: solid 1px">28</td>
-        </tr>
-        <tr>
-            <td style="text-align: center; border-right: solid 1px">OWL-ViT (ViT-B/16)</td>
-            <td style="text-align: center; border-right: solid 1px">768</td>
-            <td style="text-align: center; border-right: solid 1px">16</td>
-            <td style="text-align: center; border-right: solid 1px">TBD</td>
-            <td style="text-align: center; border-right: solid 1px">25</td>
-            <td style="text-align: center; border-right: solid 1px">31.7</td>
-        </tr>
-    </tbody>
-</table>
-
 <a id="setup"></a>
 ## 🛠️ Setup
 
-1. Install the dependencies
-
-    1. Install PyTorch
-
-    2. Install [torch2trt](https://github.com/NVIDIA-AI-IOT/torch2trt)
-    3. Install NVIDIA TensorRT
-    4. Install the Transformers library
-
-        ```bash
-        python3 -m pip install transformers
-        ```
-    5. (optional) Install NanoSAM (for the instance segmentation example)
-
-2. Install the NanoOWL package.
-
-    ```bash
+1. Install [Anaconda](https://www.anaconda.com/download)
+2. Create Enviroment
+    
+    ```powershell
+    conda create -n NanoOWL python=3.11
+    conda activate NanoOWL
+    conda update pip
+    ```
+    
+3. Install [PyTorch](https://pytorch.org/get-started/previous-versions/)
+    
+    ```powershell
+    # https://docs.nvidia.com/jetson/jetpack/release-notes/index.html#jetpack-version
+    # CUDA 11.8
+    # cuDNN 8.9.2.26
+    # TensorRT 8.5.2 
+    # OpenCV 4.5.4
+    conda install pytorch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 pytorch-cuda=11.8 -c pytorch -c nvidia
+    conda install cudatoolkit=11.8 cudnn=8.9.2.26 -c conda-forge
+    ```
+    
+4. Install the NanoOWL package.
+    
+    ```powershell
     git clone https://github.com/NVIDIA-AI-IOT/nanoowl
     cd nanoowl
-    python3 setup.py develop --user
+    python setup.py develop --user
+    mkdir data
     ```
-
-3. Build the TensorRT engine for the OWL-ViT vision encoder
-
+    
+5. Install [TensorRT](https://developer.nvidia.com/nvidia-tensorrt-8x-download)
+    
+    <img src="assets/TensorRT_Download.png" height="256px"/>
+    
+    ```powershell
+    cp "C:/Users/<user>/Downloads/TensorRT-8.5.2.2.Windows10.x86_64.cuda-11.8.cudnn8.6.zip" "./"
+    Expand-Archive "./TensorRT-8.5.2.2.Windows10.x86_64.cuda-11.8.cudnn8.6.zip" "./"
+    rm "./TensorRT-8.5.2.2.Windows10.x86_64.cuda-11.8.cudnn8.6.zip"
+    pip install "./TensorRT-8.5.2.2/python/tensorrt-8.5.2.2-cp39-none-win_amd64.whl"
+    ```
+    
+6. Install [pucuda](https://www.lfd.uci.edu/~gohlke/pythonlibs/?cm_mc_uid=08085305845514542921829&cm_mc_sid_50200000=1456395916&cm_mc_uid=08085305845514542921829&cm_mc_sid_50200000=1456395916#pycuda)
+    
+    <img src="assets/pycuda_Download.png" height="256px"/>
+    ```powershell
+    pip install "C:/Users/<user>/Downloads/pycuda-2021.1+cuda114-cp39-cp39-win_amd64.whl"
+    ```
+    
+7. Install [cuda-python](https://nvidia.github.io/cuda-python/install.html)
+    
+    ```powershell
+    conda install -c nvidia -c conda-forge cuda-python=11.8
+    conda install -c conda-forge cuda-python=11.8
+    ```
+    
+8. Install [torch2trt](https://github.com/NVIDIA-AI-IOT/torch2trt)
+    
+    ```powershell
+    pip install packaging
+    # set $env:CUDA_HOME="<your_cuda_install_path>"
+    $env:CUDA_HOME="C:\Users\<user>\anaconda3\envs\NanoOWL\Lib\site-packages\torch\cuda" 
+    pip install git+https://github.com/NVIDIA-AI-IOT/torch2trt.git
+    ```
+    
+9. Install the python library
+    
+    ```powershell
+    pip install transformers timm accelerate opencv-python onnx onnxscript matplotlib
+    pip install git+https://github.com/openai/CLIP.git
+    ```
+    
+10. Build the TensorRT engine for the OWL-ViT vision encoder
+    
     ```bash
-    python3 -m nanoowl.build_image_encoder_engine \
-        data/owl_image_encoder_patch32.engine
+    cp "C:/Users/<user>/anaconda3/envs/NanoOWL/bin/cudart64_110.dll" "./TensorRT-8.5.2.2/bin"
+    cp "C:/Users/<user>/anaconda3/envs/NanoOWL/bin/cublas64_11.dll" "./TensorRT-8.5.2.2/bin"
+    cp "C:/Users/<user>/anaconda3/envs/NanoOWL/bin/cublasLt64_11.dll" "./TensorRT-8.5.2.2/bin"
+    cp "C:/Users/<user>/anaconda3/envs/NanoOWL/Lib/site-packages/torch/lib/cudnn64_8.dll" "./TensorRT-8.5.2.2/bin"
+    python -m nanoowl.build_image_encoder_engine data/owl_image_encoder_patch32.engine
+    ```
+    
+11. Run an example prediction to ensure everything is working
+    
+    ```bash
+    cd examples
+    python owl_predict.py --prompt="[an owl, a glove]" --threshold=0.1 --image_encoder_engine=../data/owl_image_encoder_patch32.engine
     ```
     
 
-4. Run an example prediction to ensure everything is working
-
-    ```bash
-    cd examples
-    python3 owl_predict.py \
-        --prompt="[an owl, a glove]" \
-        --threshold=0.1 \
-        --image_encoder_engine=../data/owl_image_encoder_patch32.engine
-    ```
-
-That's it!  If everything is working properly, you should see a visualization saved to ``data/owl_predict_out.jpg``.  
-
-<a id="examples"></a>
-## 🤸 Examples
-
-### Example 1 - Basic prediction
-
+That’s it! If everything is working properly, you should see a visualization saved to ``data/owl_predict_out.jpg``.
+<p align="center">
 <img src="assets/owl_predict_out.jpg" height="256px"/>
 
-This example demonstrates how to use the TensorRT optimized OWL-ViT model to
-detect objects by providing text descriptions of the object labels.
+<a id="examples"></a>
+## 🤸 Example
 
-To run the example, first navigate to the examples folder
-
-```bash
-cd examples
-```
-
-Then run the example
-
-```bash
-python3 owl_predict.py \
-    --prompt="[an owl, a glove]" \
-    --threshold=0.1 \
-    --image_encoder_engine=../data/owl_image_encoder_patch32.engine
-```
-
-By default the output will be saved to ``data/owl_predict_out.jpg``. 
-
-You can also use this example to profile inference.  Simply set the flag ``--profile``.
-
-### Example 2 - Tree prediction
-
-<img src="assets/tree_predict_out.jpg" height="256px"/>
-
-This example demonstrates how to use the tree predictor class to detect and
-classify objects at any level.
-
-To run the example, first navigate to the examples folder
-
-```bash
-cd examples
-```
-
-To detect all owls, and the detect all wings and eyes in each detect owl region
-of interest, type
-
-```bash
-python3 tree_predict.py \
-    --prompt="[an owl [a wing, an eye]]" \
-    --threshold=0.15 \
-    --image_encoder_engine=../data/owl_image_encoder_patch32.engine
-```
-
-By default the output will be saved to ``data/tree_predict_out.jpg``.
-
-To classify the image as indoors or outdoors, type
-
-```bash
-python3 tree_predict.py \
-    --prompt="(indoors, outdoors)" \
-    --threshold=0.15 \
-    --image_encoder_engine=../data/owl_image_encoder_patch32.engine
-```
-
-To classify the image as indoors or outdoors, and if it's outdoors then detect
-all owls, type
-
-```bash
-python3 tree_predict.py \
-    --prompt="(indoors, outdoors [an owl])" \
-    --threshold=0.15 \
-    --image_encoder_engine=../data/owl_image_encoder_patch32.engine
-```
-
-
-### Example 3 - Tree prediction (Live Camera)
+### Tree prediction (Live Camera)
 
 <img src="assets/jetson_person_2x.gif" height="50%" width="50%"/>
 
-This example demonstrates the tree predictor running on a live camera feed with
-live-edited text prompts.  To run the example
+This example demonstrates the tree predictor running on a live camera feed with live-edited text prompts. To run the example
 
 1. Ensure you have a camera device connected
-
 2. Launch the demo
-    ```bash
-    cd examples/tree_demo
-    python3 tree_demo.py ../../data/owl_image_encoder_patch32.engine
+    
+    ```powershell
+    cd examples/tree_demo 
+    python tree_demo.py ../../data/owl_image_encoder_patch32.engine
     ```
+    
 3. Second, open your browser to ``http://<ip address>:7860``
-4. Type whatever prompt you like to see what works!  Here are some examples
+4. Type whatever prompt you like to see what works! Here are some examples
     - Example: [a face [a nose, an eye, a mouth]]
     - Example: [a face (interested, yawning / bored)]
     - Example: (indoors, outdoors)
-
 
 
 <a id="acknowledgement"></a>
