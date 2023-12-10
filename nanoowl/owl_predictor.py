@@ -20,12 +20,15 @@ import PIL.Image
 import subprocess
 import tempfile
 import os
+import sys
 from torchvision.ops import roi_align
 from transformers.models.owlvit.modeling_owlvit import OwlViTForObjectDetection
 from transformers.models.owlvit.processing_owlvit import OwlViTProcessor
 from dataclasses import dataclass
 from typing import List, Optional, Union, Tuple
 from .image_preprocessor import ImagePreprocessor
+
+IS_WINDOWS = sys.platform == 'win32'
 
 __all__ = [
     "OwlPredictor",
@@ -430,6 +433,8 @@ class OwlPredictor(torch.nn.Module):
             self.export_image_encoder_onnx(onnx_path, onnx_opset=onnx_opset)
 
         args = ["/usr/src/tensorrt/bin/trtexec"]
+        if IS_WINDOWS:
+            args = [r"TensorRT/bin/trtexec.exe"]
     
         args.append(f"--onnx={onnx_path}")
         args.append(f"--saveEngine={engine_path}")

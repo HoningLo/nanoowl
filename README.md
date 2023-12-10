@@ -52,12 +52,14 @@ NanoOWL is a project that optimizes [OWL-ViT](https://huggingface.co/docs/transf
     cp "C:/Users/<user>/Downloads/TensorRT-8.5.2.2.Windows10.x86_64.cuda-11.8.cudnn8.6.zip" "./"
     Expand-Archive "./TensorRT-8.5.2.2.Windows10.x86_64.cuda-11.8.cudnn8.6.zip" "./"
     rm "./TensorRT-8.5.2.2.Windows10.x86_64.cuda-11.8.cudnn8.6.zip"
-    pip install "./TensorRT-8.5.2.2/python/tensorrt-8.5.2.2-cp39-none-win_amd64.whl"
+    mv "./TensorRT-8.5.2.2" "./TensorRT"
+    pip install "./TensorRT/python/tensorrt-8.5.2.2-cp39-none-win_amd64.whl"
     ```
     
 6. Install [pucuda](https://www.lfd.uci.edu/~gohlke/pythonlibs/?cm_mc_uid=08085305845514542921829&cm_mc_sid_50200000=1456395916&cm_mc_uid=08085305845514542921829&cm_mc_sid_50200000=1456395916#pycuda)
     
     <img src="assets/pycuda_Download.png" height="256px"/>
+
     ```powershell
     pip install "C:/Users/<user>/Downloads/pycuda-2021.1+cuda114-cp39-cp39-win_amd64.whl"
     ```
@@ -88,10 +90,10 @@ NanoOWL is a project that optimizes [OWL-ViT](https://huggingface.co/docs/transf
 10. Build the TensorRT engine for the OWL-ViT vision encoder
     
     ```bash
-    cp "C:/Users/<user>/anaconda3/envs/NanoOWL/bin/cudart64_110.dll" "./TensorRT-8.5.2.2/bin"
-    cp "C:/Users/<user>/anaconda3/envs/NanoOWL/bin/cublas64_11.dll" "./TensorRT-8.5.2.2/bin"
-    cp "C:/Users/<user>/anaconda3/envs/NanoOWL/bin/cublasLt64_11.dll" "./TensorRT-8.5.2.2/bin"
-    cp "C:/Users/<user>/anaconda3/envs/NanoOWL/Lib/site-packages/torch/lib/cudnn64_8.dll" "./TensorRT-8.5.2.2/bin"
+    cp "C:/Users/<user>/anaconda3/envs/NanoOWL/bin/cudart64_110.dll" "./TensorRT/bin"
+    cp "C:/Users/<user>/anaconda3/envs/NanoOWL/bin/cublas64_11.dll" "./TensorRT/bin"
+    cp "C:/Users/<user>/anaconda3/envs/NanoOWL/bin/cublasLt64_11.dll" "./TensorRT/bin"
+    cp "C:/Users/<user>/anaconda3/envs/NanoOWL/Lib/site-packages/torch/lib/cudnn64_8.dll" "./TensorRT/bin"
     python -m nanoowl.build_image_encoder_engine data/owl_image_encoder_patch32.engine
     ```
     
